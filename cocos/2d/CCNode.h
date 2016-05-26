@@ -116,8 +116,8 @@ public:
         FLAGS_TRANSFORM_DIRTY = (1 << 0),
         FLAGS_CONTENT_SIZE_DIRTY = (1 << 1),
         FLAGS_RENDER_AS_3D = (1 << 3),
-
         FLAGS_DIRTY_MASK = (FLAGS_TRANSFORM_DIRTY | FLAGS_CONTENT_SIZE_DIRTY),
+        FLAGS_RENDER_BACK = (1 << 4)
     };
     /// @{
     /// @name Constructor, Destructor and Initializers
@@ -1157,7 +1157,6 @@ public:
     virtual void visit(Renderer *renderer, const Mat4& parentTransform, uint32_t parentFlags);
     virtual void visit() final;
 
-
     /** Returns the Scene that contains the Node.
      It returns `nullptr` if the node doesn't belong to any Scene.
      This function recursively calls parent->getScene() until parent is a Scene object. The results are not cached. It is that the user caches the results in case this functions is being used inside a loop.
@@ -1817,6 +1816,18 @@ public:
      */
     virtual void setCameraMask(unsigned short mask, bool applyChildren = true);
 
+    
+    void setRenderQueueId(int queueId, bool isRoot = false);
+    void appendRenderQueueId(int queueId);
+    bool hasCustomRenderQueueId() const;
+    
+    void pushModelViewTransform();
+    void popModelViewTransform();
+    
+    const Mat4& getModelViewTransform() const;
+    
+    void setAsDirty() {_transformUpdated = _transformDirty = _inverseDirty = true;}
+
 CC_CONSTRUCTOR_ACCESS:
     // Nodes should be created using create();
     Node();
@@ -1950,12 +1961,18 @@ protected:
     Color3B     _realColor;
     bool        _cascadeColorEnabled;
     bool        _cascadeOpacityEnabled;
-
+    bool _scheduleUpdate;
+    struct timeval _scheduleUpdateTime;
     static int s_globalOrderOfArrival;
-    
+
     // camera mask, it is visible only when _cameraMask & current camera' camera flag is true
     unsigned short _cameraMask;
     
+    int _renderQueueId;
+    bool _customRenderQueueId;
+    
+    static int _visitingQueueId;
+
     std::function<void()> _onEnterCallback;
     std::function<void()> _onExitCallback;
     std::function<void()> _onEnterTransitionDidFinishCallback;

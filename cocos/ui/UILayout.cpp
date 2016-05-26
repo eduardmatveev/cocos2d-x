@@ -237,6 +237,18 @@ void Layout::stencilClippingVisit(Renderer *renderer, const Mat4& parentTransfor
     if(!_visible)
         return;
     
+    if(_scheduleUpdate)
+    {
+        auto last = _scheduleUpdateTime;
+        gettimeofday(&_scheduleUpdateTime, nullptr);
+        auto dt = (_scheduleUpdateTime.tv_sec - last.tv_sec) + (_scheduleUpdateTime.tv_usec - last.tv_usec)  / 1000000.0f;
+        update(dt);
+        if (!_visible || !_running)
+        {
+            return;
+        }
+    }
+    
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:

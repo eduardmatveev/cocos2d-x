@@ -584,10 +584,10 @@ void Widget::setTouchEnabled(bool enable)
         _touchListener = EventListenerTouchOneByOne::create();
         CC_SAFE_RETAIN(_touchListener);
         _touchListener->setSwallowTouches(true);
-        _touchListener->onTouchBegan = CC_CALLBACK_2(Widget::onTouchBegan, this);
-        _touchListener->onTouchMoved = CC_CALLBACK_2(Widget::onTouchMoved, this);
-        _touchListener->onTouchEnded = CC_CALLBACK_2(Widget::onTouchEnded, this);
-        _touchListener->onTouchCancelled = CC_CALLBACK_2(Widget::onTouchCancelled, this);
+        _touchListener->onTouchBegan = [this](Touch* touch, Event* event){return onTouchBegan(touch, event);};
+        _touchListener->onTouchMoved = [this](Touch* touch, Event* event){onTouchMoved(touch, event);};
+        _touchListener->onTouchEnded = [this](Touch* touch, Event* event){onTouchEnded(touch, event);};
+        _touchListener->onTouchCancelled = [this](Touch* touch, Event* event){onTouchCancelled(touch, event);};
         _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, this);
     }
     else

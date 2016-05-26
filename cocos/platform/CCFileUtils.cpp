@@ -617,6 +617,8 @@ static Data getData(const std::string& filename, bool forString)
         return Data::Null;
     }
 
+//    cocos2d::log("!!!!getData::%s", filename.c_str());
+    
     Data ret;
     unsigned char* buffer = nullptr;
     size_t size = 0;

@@ -42,6 +42,7 @@ GLushort* QuadCommand::__indices = nullptr;
 QuadCommand::QuadCommand()
 : _indexSize(-1)
 {
+    reIndex(5120);
 }
 
 QuadCommand::~QuadCommand()

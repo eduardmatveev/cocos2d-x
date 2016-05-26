@@ -218,6 +218,7 @@ ParticleSystem::ParticleSystem()
 , _opacityModifyRGB(false)
 , _yCoordFlipped(1)
 , _positionType(PositionType::FREE)
+, _updateTime(0.0f)
 {
     modeA.gravity.setZero();
     modeA.speed = 0;
@@ -788,7 +789,7 @@ void ParticleSystem::onEnter()
     Node::onEnter();
     
     // update after action in run!
-    this->scheduleUpdateWithPriority(1);
+    this->scheduleUpdate();
 }
 
 void ParticleSystem::onExit()
@@ -830,6 +831,14 @@ bool ParticleSystem::isFull()
 // ParticleSystem - MainLoop
 void ParticleSystem::update(float dt)
 {
+    static const float FRAME_TIME = 1.0f / 7.5f;
+    _updateTime += dt;
+    if(_updateTime <= FRAME_TIME)
+    {
+        return;
+    }
+    dt = _updateTime;
+    _updateTime = (static_cast<int>(_updateTime * 1000) % static_cast<int>(FRAME_TIME * 1000)) / 1000.0f;
     CC_PROFILER_START_CATEGORY(kProfilerCategoryParticles , "CCParticleSystem - update");
 
     if (_isActive && _emissionRate)

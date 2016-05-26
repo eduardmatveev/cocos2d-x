@@ -53,6 +53,12 @@ void RenderCommand::init(float globalZOrder, const cocos2d::Mat4 &transform, uin
         
         set3D(true);
     }
+    else if (flags & Node::FLAGS_RENDER_BACK)
+    {
+        set3D(false);
+        _depth = 0;
+        _globalOrder = -1;
+    }
     else
     {
         set3D(false);

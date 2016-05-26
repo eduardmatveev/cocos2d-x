@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+    <string name="server_client_id">91923106356-v6us9pp1r86u9m62l7au1dpugkv8ino2.apps.googleusercontent.com</string>
+    <string name="appsflyer_key">VpNcTK4cQiPQzpTarjkp2j</string>
+    <string name="yandex_metrica_key">91fe3edc-4957-4568-b9a3-8708374ab26f</string>
+    <string name="hockeyapp_app_id">81cfd5e039f1482d9eebcce12b2d108e</string>
+    <string name="hockeyapp_app_secret">4395fadc315bfd72eaae65b0fefa053d</string>
+</resources>

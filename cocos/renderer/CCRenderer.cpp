@@ -365,6 +365,17 @@ int Renderer::createRenderQueue()
     return (int)_renderGroups.size() - 1;
 }
 
+int Renderer::getRealQId(int renderQueueID)
+{
+    auto qId = _renderQIds.find(renderQueueID);
+    if(qId == _renderQIds.end())
+    {
+        qId =_renderQIds.emplace(std::make_pair(renderQueueID, createRenderQueue())).first;
+    }
+    
+    return qId->second;
+}
+
 void Renderer::processRenderCommand(RenderCommand* command)
 {
     auto commandType = command->getType();
@@ -611,19 +622,20 @@ void Renderer::render()
 {
     //Uncomment this once everything is rendered by new renderer
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     //TODO: setup camera or MVP
     _isRendering = true;
     
     if (_glViewAssigned)
     {
-        //Process render commands
-        //1. Sort render commands based on ID
-        for (auto &renderqueue : _renderGroups)
+        for(auto& id : _renderQIds)        
         {
-            renderqueue.sort();
+            //Process render commands
+            //1. Sort render commands based on ID
+            //_renderGroups[id.second].sort();
+            
+            visitRenderQueue(_renderGroups[id.second]);
         }
-        visitRenderQueue(_renderGroups[0]);
     }
     clean();
     _isRendering = false;
@@ -671,7 +683,7 @@ void Renderer::setDepthTest(bool enable)
         RenderState::StateBlock::_defaultState->setDepthTest(true);
         RenderState::StateBlock::_defaultState->setDepthFunction(RenderState::DEPTH_LEQUAL);
 
-//        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
     else
     {

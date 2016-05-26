@@ -90,6 +90,11 @@ public:
     virtual std::string getVersion() override;
 
     /**
+     @brief RJ: Get application revision.
+     */
+    virtual std::string getRevision() override;
+   
+    /**
      @brief Open url in default browser
      @param String with url to open.
      @return true if the resource located by the URL was successfully opened; otherwise false.

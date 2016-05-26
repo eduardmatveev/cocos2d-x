@@ -57,11 +57,6 @@ include(editor-support/cocostudio/CMakeLists.txt)
 set(COCOS_EDITOR_SUPPORT_SRC ${COCOS_EDITOR_SUPPORT_SRC} ${COCOS_CS_SRC})
 endif(BUILD_EDITOR_COCOSTUDIO)
 
-if(BUILD_EDITOR_SPINE)
-include(editor-support/spine/CMakeLists.txt)
-set(COCOS_EDITOR_SUPPORT_SRC ${COCOS_EDITOR_SUPPORT_SRC} ${COCOS_SPINE_SRC})
-endif(BUILD_EDITOR_SPINE)
-
 include(../extensions/CMakeLists.txt)
 
 set(COCOS_SRC cocos2d.cpp
@@ -98,7 +93,7 @@ elseif(LINUX)
   foreach(_pkg OPENGL GLEW GLFW3 FMOD FONTCONFIG THREADS GTK3)
     cocos_use_pkg(cocos2dInternal ${_pkg})
   endforeach()
-elseif(MACOSX OR APPLE)
+elseif(MACOSX)
   cocos_use_pkg(cocos2dInternal GLFW3)
 
  INCLUDE_DIRECTORIES ( /System/Library/Frameworks )
@@ -124,12 +119,38 @@ elseif(MACOSX OR APPLE)
     ${FOUNDATION_LIBRARY}
     ${ICONV_LIBRARY}
   )
-
 elseif(ANDROID)
   set(PLATFORM_SPECIFIC_LIBS GLESv1_CM GLESv2 EGL log android OpenSLES)
   get_filename_component(__module_path "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
   include(${__module_path}/AndroidNdkModules.cmake)
   android_ndk_import_module_cpufeatures()
+elseif(IOS)
+    INCLUDE_DIRECTORIES ( /System/Library/Frameworks )
+    FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
+    FIND_LIBRARY(OPENAL_LIBRARY OpenAL )
+    FIND_LIBRARY(QUARTZCORE_LIBRARY QuartzCore )
+    FIND_LIBRARY(FOUNDATION_LIBRARY Foundation)
+    FIND_LIBRARY(AVFOUNDATION_LIBRARY AvFoundation)
+    FIND_LIBRARY(CORETELEPHONY_LIBRARY CoreTelephony)
+    FIND_LIBRARY(CORELOCATION_LIBRARY CoreLocation)
+
+    #SET(IOS_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk")
+    #FIND_LIBRARY(SQLITE3_LIBRARY sqlite3
+    #    PATHS "${IOS_SYSROOT}/usr/lib"
+    #    NO_DEFAULT_PATH)
+
+    set(PLATFORM_SPECIFIC_LIBS
+      ${OPENAL_LIBRARY}
+      ${AUDIOTOOLBOX_LIBRARY}
+      ${QUARTZCORE_LIBRARY}
+      ${FOUNDATION_LIBRARY}
+      ${AVFOUNDATION_LIBRARY}
+      ${CORETELEPHONY_LIBRARY}
+      ${CORELOCATION_LIBRARY}
+      #${SQLITE3_LIBRARY}
+      "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/lib/libsqlite3.tbd" 
+    )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework UIKit")
 else()
   message( FATAL_ERROR "Unsupported platform, CMake will exit" )
 endif()
@@ -175,6 +196,13 @@ if(ANDROID)
 else()
   target_link_libraries(cocos2d cocos2dInternal)
 endif()
+
+set_target_properties(cocos2dInternal
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    VERSION "${COCOS2D_X_VERSION}"
+)
 
 set_target_properties(cocos2d
     PROPERTIES

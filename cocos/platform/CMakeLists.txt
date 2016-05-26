@@ -34,7 +34,7 @@ set(COCOS_PLATFORM_SPECIFIC_SRC
   platform/desktop/CCGLViewImpl-desktop.cpp
 )
 
-elseif(MACOSX OR APPLE)
+elseif(MACOSX)
 
 set(COCOS_PLATFORM_SPECIFIC_SRC
   platform/mac/CCApplication-mac.mm
@@ -45,7 +45,24 @@ set(COCOS_PLATFORM_SPECIFIC_SRC
   platform/apple/CCThread-apple.mm
   platform/desktop/CCGLViewImpl-desktop.cpp
 )
-
+elseif(IOS)
+file(GLOB_RECURSE DEPRECATED_SOURCES deprecated/*.cpp)
+set(COCOS_PLATFORM_SPECIFIC_SRC
+  platform/ios/CCApplication-ios.mm  
+  platform/ios/CCDirectorCaller-ios.mm 
+  platform/ios/CCGLViewImpl-ios.mm
+  platform/ios/CCCommon-ios.mm   
+  platform/ios/CCEAGLView-ios.mm 
+  platform/ios/CCImage-ios.mm
+  platform/ios/CCDevice-ios.mm   
+  platform/ios/CCES2Renderer-ios.m
+  platform/ios/ClipboardHelper.mm
+  platform/apple/CCLock-apple.cpp
+  platform/apple/CCFileUtils-apple.mm
+  platform/apple/CCThread-apple.mm
+  ${DEPRECATED_SOURCES}
+)
+set(DEPRECATED_HEADERS deprecated)
 elseif(LINUX)
 
   include_directories(

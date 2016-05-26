@@ -8,6 +8,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.content.pm.ApplicationInfo;
 
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -55,6 +56,12 @@ public class Cocos2dxWebView extends WebView {
         this.getSettings().setSupportZoom(false);
 
         this.getSettings().setJavaScriptEnabled(true);
+        this.getSettings().setDomStorageEnabled(true);
+        boolean isDebuggable = 0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE);
+        if (isDebuggable) {
+        	Log.d(TAG, "Set web content debug flag to TRUE");
+        	this.setWebContentsDebuggingEnabled(true);
+        }
 
         // `searchBoxJavaBridge_` has big security risk. http://jvn.jp/en/jp/JVN53768697
         try {

@@ -58,7 +58,7 @@ public:
 	/**
 	* The buffer size of _responseMessage
 	*/
-	static const int RESPONSE_BUFFER_SIZE = 256;
+	static const int RESPONSE_BUFFER_SIZE = 10 * 1024 * 1024;
 
     /**
      * Get instance of HttpClient.

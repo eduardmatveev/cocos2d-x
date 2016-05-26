@@ -27,6 +27,7 @@
 /// @cond DO_NOT_SHOW
 
 #include <iosfwd>
+#include <cstdint>
 
 @class UIWebViewWrapper;
 

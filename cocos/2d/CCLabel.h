@@ -323,6 +323,11 @@ public:
     int getStringLength();
 
     /**
+     * Return string at line (RJ)
+     */
+    std::string getStringAt(int lineIndex);
+    
+    /**
      * Sets the text color of Label.
      *
      * The text color is different from the color of Node.

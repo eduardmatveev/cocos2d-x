@@ -37,8 +37,26 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.text.Spanned;
 
 public class Cocos2dxEditBox extends EditText {
+	
+	public static InputFilter EMOJI_FILTER = new InputFilter() {
+		 
+	    @Override
+	    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+	        for (int index = start; index < end; index++) {
+	 
+	            int type = Character.getType(source.charAt(index));
+	 
+	            if (type == Character.SURROGATE) {
+	                return "";
+	            }
+	        }
+	        return null;
+	    }
+	};
+	
     /**
      * The user is allowed to enter any text, including line breaks.
      */
@@ -99,6 +117,11 @@ public class Cocos2dxEditBox extends EditText {
      */
     private final int kEditBoxInputFlagInitialCapsAllCharacters = 4;
 
+    /**
+     *  Lowercase all characters automatically.
+     */
+    private final int kEditBoxInputFlagLowercaseAllCharacters = 5;
+
     private final int kKeyboardReturnTypeDefault = 0;
     private final int kKeyboardReturnTypeDone = 1;
     private final int kKeyboardReturnTypeSend = 2;
@@ -117,6 +140,7 @@ public class Cocos2dxEditBox extends EditText {
 
     public  Cocos2dxEditBox(Context context){
         super(context);
+        setFilters(new InputFilter[]{EMOJI_FILTER});
     }
 
     public void setEditBoxViewRect(int left, int top, int maxWidth, int maxHeight) {
@@ -142,7 +166,7 @@ public class Cocos2dxEditBox extends EditText {
     public  void setMaxLength(int maxLength){
         this.mMaxLength = maxLength;
 
-        this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(this.mMaxLength) });
+        this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(this.mMaxLength), EMOJI_FILTER });
     }
 
     public void setMultilineEnabled(boolean flag){
@@ -242,6 +266,9 @@ public class Cocos2dxEditBox extends EditText {
                 break;
             case kEditBoxInputFlagInitialCapsAllCharacters:
                 this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
+                break;
+            case kEditBoxInputFlagLowercaseAllCharacters:
+                this.mInputFlagConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL;
                 break;
             default:
                 break;

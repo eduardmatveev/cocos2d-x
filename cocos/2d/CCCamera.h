@@ -292,6 +292,7 @@ CC_CONSTRUCTOR_ACCESS:
     bool initOrthographic(float zoomX, float zoomY, float nearPlane, float farPlane);
     void applyFrameBufferObject();
     void applyViewport();
+    static Camera* _visitingCamera;
 protected:
 
     Scene* _scene; //Scene camera belongs to
@@ -312,7 +313,6 @@ protected:
     mutable Frustum _frustum;   // camera frustum
     mutable bool _frustumDirty;
     int8_t  _depth;                 //camera depth, the depth of camera with CameraFlag::DEFAULT flag is 0 by default, a camera with larger depth is drawn on top of camera with smaller depth
-    static Camera* _visitingCamera;
     
     CameraBackgroundBrush* _clearBrush; //brush used to clear the back ground
     

@@ -272,9 +272,25 @@ void Director::drawScene()
     //tick before glClear: issue #533
     if (! _paused)
     {
-        _eventDispatcher->dispatchEvent(_eventBeforeUpdate);
-        _scheduler->update(_deltaTime);
-        _eventDispatcher->dispatchEvent(_eventAfterUpdate);
+        try
+        {
+            _scheduler->update(_deltaTime);
+            _eventDispatcher->dispatchEvent(_eventAfterUpdate);
+        }
+        catch (const std::exception& e)
+        {
+            if(_runningScene)
+            {
+                _runningScene->showError(e.what());
+            }
+        }
+        catch (...)
+        {
+            if(_runningScene)
+            {
+                _runningScene->showError("Main Loop error");
+            }
+        }
     }
 
     _renderer->clear();
@@ -288,6 +304,7 @@ void Director::drawScene()
     }
 
     pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    _renderer->pushGroup(_renderer->getRealQId(-1));
     
     if (_runningScene)
     {
@@ -318,6 +335,7 @@ void Director::drawScene()
     _eventDispatcher->dispatchEvent(_eventAfterDraw);
 
     popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    _renderer->popGroup();
 
     _totalFrames++;
 
@@ -607,7 +625,7 @@ void Director::setProjection(Projection projection)
             loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
             Mat4 orthoMatrix;
-            Mat4::createOrthographicOffCenter(0, size.width, 0, size.height, -1024, 1024, &orthoMatrix);
+            Mat4::createOrthographicOffCenter(0, size.width, 0, size.height, -10240, 10240, &orthoMatrix);
             multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, orthoMatrix);
             loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
             break;

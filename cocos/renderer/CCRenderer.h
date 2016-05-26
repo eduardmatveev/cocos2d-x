@@ -154,6 +154,8 @@ public:
     /** Creates a render queue and returns its Id */
     int createRenderQueue();
 
+    int getRealQId(int renderQueueID);
+    
     /** Renders into the GLView all the queued `RenderCommand` objects */
     void render();
 
@@ -258,6 +260,8 @@ protected:
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     EventListenerCustom* _cacheTextureListener;
 #endif
+private:
+    std::map<int, int> _renderQIds;
 };
 
 NS_CC_END

@@ -813,12 +813,15 @@ void GLViewImpl::onGLFWframebuffersize(GLFWwindow* window, int w, int h)
 
 void GLViewImpl::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height)
 {
-    int frameWidth = width / _frameZoomFactor;
-    int frameHeight = height / _frameZoomFactor;
-    setFrameSize(frameWidth, frameHeight);
-    
-    updateDesignResolutionSize();
-    Director::getInstance()->setViewport();
+    auto view = Director::getInstance()->getOpenGLView();
+    if(view && view->getResolutionPolicy() != ResolutionPolicy::UNKNOWN)
+    {
+        Size resSize=view->getDesignResolutionSize();
+        ResolutionPolicy resPolicy=view->getResolutionPolicy();
+        view->setFrameSize(width, height);
+        view->setDesignResolutionSize(resSize.width, resSize.height, resPolicy);
+        Director::getInstance()->setViewport();
+    }
 }
 
 void GLViewImpl::onGLFWWindowIconifyCallback(GLFWwindow* window, int iconified)

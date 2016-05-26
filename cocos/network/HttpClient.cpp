@@ -511,6 +511,7 @@ void HttpClient::dispatchResponseCallbacks()
 void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 {
 	auto request = response->getHttpRequest();
+//    cocos2d::log("%s", ("Sending request:" + std::string(request->getUrl())).c_str());
 	long responseCode = -1;
 	int retValue = 0;
 

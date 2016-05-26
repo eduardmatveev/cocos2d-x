@@ -906,7 +906,24 @@ void EventDispatcher::dispatchEvent(Event* event)
     
     if (event->getType() == Event::Type::TOUCH)
     {
-        dispatchTouchEvent(static_cast<EventTouch*>(event));
+        try
+        {
+            dispatchTouchEvent(static_cast<EventTouch*>(event));
+        }
+        catch (const std::exception& e)
+        {
+            if(Director::getInstance()->getRunningScene())
+            {
+                Director::getInstance()->getRunningScene()->showError(e.what());
+            }
+        }
+        catch (...)
+        {
+            if(Director::getInstance()->getRunningScene())
+            {
+                Director::getInstance()->getRunningScene()->showError("TouchEvent error");
+            }
+        }
         return;
     }
     
@@ -1135,6 +1152,11 @@ void EventDispatcher::dispatchTouchEvent(EventTouch* event)
     }
     
     updateListeners(event);
+}
+
+const std::unordered_map<Node*, std::vector<EventListener*>*>& EventDispatcher::getListenersMap() const
+{
+    return _nodeListenersMap;
 }
 
 void EventDispatcher::updateListeners(Event* event)

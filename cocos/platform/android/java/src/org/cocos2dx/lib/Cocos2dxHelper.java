@@ -32,6 +32,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -40,6 +43,8 @@ import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
+import android.os.Bundle;
+import android.content.pm.PackageManager;
 
 import com.enhance.gameservice.IGameTuningService;
 
@@ -48,6 +53,8 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.lang.Exception;
+import java.lang.Runnable;
 
 public class Cocos2dxHelper {
     // ===========================================================
@@ -75,6 +82,7 @@ public class Cocos2dxHelper {
     //Enhance API modification begin
     private static IGameTuningService mGameServiceBinder = null;
     private static final int BOOST_TIME = 7;
+    private static String clipboardData;
     //Enhance API modification end
 
     // ===========================================================
@@ -215,6 +223,17 @@ public class Cocos2dxHelper {
  		}
  	}
 
+ 	public static String getRevision() {
+ 		try {
+ 			ApplicationInfo appInfo = Cocos2dxActivity.getContext().getPackageManager().getApplicationInfo(Cocos2dxActivity.getContext().getPackageName(), PackageManager.GET_META_DATA);
+ 			Bundle bundle = appInfo.metaData;
+ 			String revision = bundle.getString("revision");
+ 			return revision;
+ 		} catch(Exception e) {
+ 			return "";
+ 		}
+ 	}
+ 	
     public static boolean openURL(String url) { 
         boolean ret = false;
         try {
@@ -611,4 +630,56 @@ public class Cocos2dxHelper {
         }
     }
     //Enhance API modification end     
+    
+    // RJ modifications
+
+    public static String getClipboard() {
+    	clipboardData = "";
+    	
+    	Runnable clipboardRunnable = new Runnable()
+    	{
+			public void run() {
+				ClipboardManager clipboard = (ClipboardManager)Cocos2dxActivity.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+				if (clipboard.hasPrimaryClip() && clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+				{
+					ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+					String pasteData = (item != null) ? item.getText().toString() : null;
+					if (pasteData != null)
+					{
+						clipboardData = pasteData;
+					}
+				}
+				
+				synchronized(this)
+				{
+					this.notify();
+				}
+			}
+		};
+		synchronized(clipboardRunnable) 
+		{
+			sActivity.runOnUiThread(clipboardRunnable) ;
+			try
+            {
+				clipboardRunnable.wait();
+            }
+            catch ( InterruptedException e )
+            {
+                // ignore
+            }
+		}
+		
+    	return clipboardData;
+    }
+    
+    public static void setClipboard(final String value) {
+    	sActivity.runOnUiThread(new Runnable() 
+		{
+			public void run() {
+				ClipboardManager clipboard = (ClipboardManager)Cocos2dxActivity.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+				ClipData clip = ClipData.newPlainText(value, value);
+				clipboard.setPrimaryClip(clip);    
+			}
+		}); 
+    }
 }

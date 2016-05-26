@@ -950,6 +950,7 @@ protected:
     bool _opacityModifyRGB;
     /** does FlippedY variance of each particle */
     int _yCoordFlipped;
+    float _updateTime;
 
 
     /** particles movement type: Free or Grouped

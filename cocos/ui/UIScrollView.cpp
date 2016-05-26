@@ -458,9 +458,9 @@ void ScrollView::startAutoScroll(const Vec2& deltaMove, float timeInSec, bool at
     Vec2 adjustedDeltaMove = flattenVectorByDirection(deltaMove);
     
     _autoScrolling = true;
-    _autoScrollTargetDelta = adjustedDeltaMove;
-    _autoScrollAttenuate = attenuated;
     _autoScrollStartPosition = _innerContainer->getPosition();
+    _autoScrollTargetDelta = validateTargetCallback ? validateTargetCallback(_autoScrollStartPosition + adjustedDeltaMove) - _autoScrollStartPosition : adjustedDeltaMove;
+    _autoScrollAttenuate = attenuated;
     _autoScrollTotalTime = timeInSec;
     _autoScrollAccumulatedTime = 0;
     _autoScrollBraking = false;
@@ -915,6 +915,15 @@ void ScrollView::handleReleaseLogic(Touch *touch)
         if(touchMoveVelocity != Vec2::ZERO)
         {
             startInertiaScroll(touchMoveVelocity);
+        }
+        else if(validateTargetCallback)
+        {
+            auto pos = validateTargetCallback(_innerContainer->getPosition());
+            if(!pos.equals(_innerContainer->getPosition()))
+            {
+                auto delta = (pos - _innerContainer->getPosition()) * 0.3;
+                startInertiaScroll(delta);
+            }
         }
     }
     

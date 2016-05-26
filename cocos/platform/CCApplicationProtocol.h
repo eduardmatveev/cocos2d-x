@@ -142,6 +142,13 @@ public:
      * @lua NA
      */
     virtual std::string getVersion() = 0;
+   
+    /**
+     @brief RJ: Get application revision.
+     * @js NA
+     * @lua NA
+     */
+    virtual std::string getRevision() {return "";};
     
     /**
      @brief Open url in default browser.

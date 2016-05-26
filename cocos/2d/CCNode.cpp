@@ -36,11 +36,12 @@ THE SOFTWARE.
 
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
-#include "base/CCEventDispatcher.h"
+#include "base/CCEventDispatcher.h" 
 #include "2d/CCCamera.h"
 #include "2d/CCActionManager.h"
 #include "2d/CCScene.h"
 #include "2d/CCComponent.h"
+#include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgram.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/CCMaterial.h"
@@ -66,6 +67,8 @@ bool nodeComparisonLess(Node* n1, Node* n2)
 
 // FIXME:: Yes, nodes might have a sort problem once every 15 days if the game runs at 60 FPS and each frame sprites are reordered.
 int Node::s_globalOrderOfArrival = 1;
+
+int Node::_visitingQueueId = -1;
 
 // MARK: Constructor, Destructor, Init
 
@@ -118,6 +121,9 @@ Node::Node()
 , _cascadeColorEnabled(false)
 , _cascadeOpacityEnabled(false)
 , _cameraMask(1)
+, _renderQueueId(0)
+, _customRenderQueueId(false)
+, _scheduleUpdate(false)
 #if CC_USE_PHYSICS
 , _physicsBody(nullptr)
 #endif
@@ -1230,6 +1236,24 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     {
         return;
     }
+    
+    bool visibleByCamera = isVisitableByVisitingCamera();
+    if(!visibleByCamera)
+    {
+        return;
+    }
+
+    if(_scheduleUpdate)
+    {
+        auto last = _scheduleUpdateTime;
+        gettimeofday(&_scheduleUpdateTime, nullptr);
+        auto dt = (_scheduleUpdateTime.tv_sec - last.tv_sec) + (_scheduleUpdateTime.tv_usec - last.tv_usec)  / 1000000.0f;
+        update(dt);
+        if (!_running)
+        {
+            return;
+        }
+    }
 
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
@@ -1239,8 +1263,6 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
     
-    bool visibleByCamera = isVisitableByVisitingCamera();
-
     int i = 0;
 
     if(!_children.empty())
@@ -1252,18 +1274,36 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
             auto node = _children.at(i);
 
             if (node && node->_localZOrder < 0)
+            {
+                if(node->_customRenderQueueId)
+                    renderer->pushGroup(renderer->getRealQId(node->_renderQueueId));
+                
                 node->visit(renderer, _modelViewTransform, flags);
+                
+                if(node->_customRenderQueueId)
+                    renderer->popGroup();
+            }
             else
                 break;
         }
+
         // self draw
-        if (visibleByCamera)
-            this->draw(renderer, _modelViewTransform, flags);
+        this->draw(renderer, _modelViewTransform, flags);
 
         for(auto it=_children.cbegin()+i; it != _children.cend(); ++it)
-            (*it)->visit(renderer, _modelViewTransform, flags);
+        {
+            auto node = *it;
+            
+            if(node->_customRenderQueueId)
+                renderer->pushGroup(renderer->getRealQId(node->_renderQueueId));
+            
+            node->visit(renderer, _modelViewTransform, flags);
+            
+            if(node->_customRenderQueueId)
+                renderer->popGroup();
+        }
     }
-    else if (visibleByCamera)
+    else
     {
         this->draw(renderer, _modelViewTransform, flags);
     }
@@ -1274,6 +1314,22 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     // Please refer to https://github.com/cocos2d/cocos2d-x/pull/6920
     // reset for next frame
     // _orderOfArrival = 0;
+}
+
+void Node::pushModelViewTransform()
+{
+    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+}
+
+void Node::popModelViewTransform()
+{
+     _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+}
+
+const Mat4& Node::getModelViewTransform() const
+{
+    return _modelViewTransform;
 }
 
 Mat4 Node::transform(const Mat4& parentTransform)
@@ -1497,7 +1553,8 @@ bool Node::isScheduled(const std::string &key)
 
 void Node::scheduleUpdate()
 {
-    scheduleUpdateWithPriority(0);
+    _scheduleUpdate = true;
+    gettimeofday(&_scheduleUpdateTime, nullptr);
 }
 
 void Node::scheduleUpdateWithPriority(int priority)
@@ -1518,7 +1575,7 @@ void Node::scheduleUpdateWithPriorityLua(int nHandler, int priority)
 
 void Node::unscheduleUpdate()
 {
-    _scheduler->unscheduleUpdate(this);
+    _scheduleUpdate = false;
     
 #if CC_ENABLE_SCRIPT_BINDING
     if (_updateScriptHandler)
@@ -2152,6 +2209,37 @@ void Node::setCameraMask(unsigned short mask, bool applyChildren)
         {
             child->setCameraMask(mask, applyChildren);
         }
+    }
+}
+
+bool Node::hasCustomRenderQueueId() const
+{
+    return _customRenderQueueId;
+}
+
+void Node::setRenderQueueId(int queueId, bool isRoot)
+{
+    _renderQueueId = queueId;
+    _customRenderQueueId = isRoot;
+    for (const auto& child : _children)
+    {
+        if(!child->hasCustomRenderQueueId())
+        {
+            child->setRenderQueueId(queueId);
+        }
+    }
+}
+
+void Node::appendRenderQueueId(int queueId)
+{
+    if(hasCustomRenderQueueId())
+    {
+        _renderQueueId += queueId;
+        _customRenderQueueId = _renderQueueId != 0;
+    }
+    for (const auto& child : _children)
+    {
+        child->appendRenderQueueId(queueId);
     }
 }
 
