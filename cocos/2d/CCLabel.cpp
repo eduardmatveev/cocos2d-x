@@ -1152,17 +1152,10 @@ NS_CC_BEGIN
         _shadowColor4F.b = shadowColor.b / 255.0f;
         _shadowColor4F.a = shadowColor.a / 255.0f;
 
-        if (_currentLabelType == LabelType::BMFONT || _currentLabelType == LabelType::CHARMAP)
-        {
-            if (_shadowEnabled)
-            {
-                setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
-            }
-            else
-            {
-                setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
-            }
-        }
+    if (_currentLabelType == LabelType::BMFONT || _currentLabelType == LabelType::CHARMAP)
+    {
+        setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(_shadowEnabled ? GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR : GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP, _getTexture(this)));
+    }
     }
 
     void Label::enableItalics()
@@ -1608,26 +1601,28 @@ NS_CC_BEGIN
 
         if (_insideBounds)
 #endif
+    {
+        if (!_shadowEnabled && (_currentLabelType == LabelType::BMFONT || _currentLabelType == LabelType::CHARMAP))
         {
-            if (!_shadowEnabled && (_currentLabelType == LabelType::BMFONT || _currentLabelType == LabelType::CHARMAP))
+            for (auto&& it : _letters)
             {
-                for (auto&& it : _letters)
-                {
-                    it.second->updateTransform();
-                }
-                auto textureAtlas = _batchNodes.at(0)->getTextureAtlas();
-                _quadCommand.init(_globalZOrder, textureAtlas->getTexture()->getName(), getGLProgramState(), _blendFunc, textureAtlas->getQuads(),
-                        textureAtlas->getTotalQuads(), transform, flags);
-                renderer->addCommand(&_quadCommand);
+                it.second->updateTransform();
             }
-            else
-            {
-                _customCommand.init(_globalZOrder, transform, flags);
-                _customCommand.func = CC_CALLBACK_0(Label::onDraw, this, transform, transformUpdated);
-
-                renderer->addCommand(&_customCommand);
-            }
+            // ETC1 ALPHA supports for BMFONT & CHARMAP
+            auto textureAtlas = _batchNodes.at(0)->getTextureAtlas();
+            auto texture = textureAtlas->getTexture();
+            _quadCommand.init(_globalZOrder, texture, getGLProgramState(), 
+                _blendFunc, textureAtlas->getQuads(), textureAtlas->getTotalQuads(), transform, flags);
+            renderer->addCommand(&_quadCommand);
         }
+        else
+        {
+            _customCommand.init(_globalZOrder, transform, flags);
+            _customCommand.func = CC_CALLBACK_0(Label::onDraw, this, transform, transformUpdated);
+
+            renderer->addCommand(&_customCommand);
+        }
+    }
     }
 
     void Label::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
@@ -1912,28 +1907,33 @@ NS_CC_BEGIN
         }
     }
 
-    void Label::updateDisplayedColor(const Color3B& parentColor)
+void Label::updateDisplayedColor(const Color3B& parentColor)
+{
+    Node::updateDisplayedColor(parentColor);
+
+    if (_currentLabelType == LabelType::TTF || _currentLabelType == LabelType::STRING_TEXTURE)
+        setTextColor(Color4B(_displayedColor));
+
+    if (_textSprite)
     {
-        Node::updateDisplayedColor(parentColor);
-
-        if (_textSprite)
-        {
-            _textSprite->updateDisplayedColor(_displayedColor);
-            if (_shadowNode)
-            {
-                _shadowNode->updateDisplayedColor(_displayedColor);
-            }
-
-            if (_underlineNode)
-                _contentDirty = true;
-        }
-
-        for (auto&& it : _letters)
-        {
-            it.second->updateDisplayedColor(_displayedColor);
-            ;
-        }
+        _textSprite->updateDisplayedColor(_displayedColor);
     }
+
+    if (_shadowNode)
+    {
+        _shadowNode->updateDisplayedColor(_displayedColor);
+    }
+
+    if (_underlineNode)
+    {
+        _contentDirty = true;
+    }
+
+    for (auto&& it : _letters)
+    {
+        it.second->updateDisplayedColor(_displayedColor);;
+    }
+}
 
     void Label::updateDisplayedOpacity(GLubyte parentOpacity)
     {

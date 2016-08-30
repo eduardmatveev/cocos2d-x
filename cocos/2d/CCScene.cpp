@@ -202,16 +202,16 @@ NS_CC_BEGIN
                 defaultCamera = Camera::_visitingCamera;
             }
 
-            // There are two ways to modify the "default camera" with the eye Transform:
-            // a) modify the "nodeToParentTransform" matrix
-            // b) modify the "additional transform" matrix
-            // both alternatives are correct, if the user manually modifies the camera with a camera->setPosition()
-            // then the "nodeToParent transform" will be lost.
-            // And it is important that the change is "permament", because the matrix might be used for calculate
-            // culling and other stuff.
-            if (eyeProjection)
-                camera->setAdditionalProjection(*eyeProjection * camera->getProjectionMatrix().getInversed());
-            camera->setAdditionalTransform(eyeTransform.getInversed());
+        // There are two ways to modify the "default camera" with the eye Transform:
+        // a) modify the "nodeToParentTransform" matrix
+        // b) modify the "additional transform" matrix
+        // both alternatives are correct, if the user manually modifies the camera with a camera->setPosition()
+        // then the "nodeToParent transform" will be lost.
+        // And it is important that the change is "permanent", because the matrix might be used for calculate
+        // culling and other stuff.
+        if (eyeProjection)
+            camera->setAdditionalProjection(*eyeProjection * camera->getProjectionMatrix().getInversed());
+        camera->setAdditionalTransform(eyeTransform.getInversed());
 
             director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
             director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());

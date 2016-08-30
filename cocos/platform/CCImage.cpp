@@ -466,7 +466,7 @@ Image::Image()
 , _fileType(Format::UNKNOWN)
 , _renderFormat(Texture2D::PixelFormat::NONE)
 , _numberOfMipmaps(0)
-, _hasPremultipliedAlpha(true)
+, _hasPremultipliedAlpha(false)
 {
 
 }
@@ -812,7 +812,6 @@ bool Image::decodeWithWIC(const unsigned char *data, ssize_t dataLen)
     {
         _width = img.getWidth();
         _height = img.getHeight();
-        _hasPremultipliedAlpha = false;
 
         WICPixelFormatGUID format = img.getPixelFormat();
 
@@ -962,7 +961,6 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
         /* init image info */
         _width  = cinfo.output_width;
         _height = cinfo.output_height;
-        _hasPremultipliedAlpha = false;
 
         _dataLen = cinfo.output_width*cinfo.output_height*cinfo.output_components;
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -1127,10 +1125,6 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         if (PNG_PREMULTIPLIED_ALPHA_ENABLED && color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         {
             premultipliedAlpha();
-        }
-        else
-        {
-            _hasPremultipliedAlpha = false;
         }
 
         if (row_pointers != nullptr)
@@ -1582,8 +1576,6 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     {
         _hasPremultipliedAlpha = true;
     }
-    else
-        _hasPremultipliedAlpha = false;
     
     // sizing
     int width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
@@ -1809,9 +1801,7 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
         _data = tgaData->imageData;
         _dataLen = _width * _height * tgaData->pixelDepth / 8;
         _fileType = Format::TGA;
-        
-        _hasPremultipliedAlpha = false;
-        
+
         ret = true;
         
     }while(false);
@@ -1846,7 +1836,6 @@ namespace
 
 bool Image::initWithS3TCData(const unsigned char * data, ssize_t dataLen)
 {
-    _hasPremultipliedAlpha = false;
     const uint32_t FOURCC_DXT1 = makeFourCC('D', 'X', 'T', '1');
     const uint32_t FOURCC_DXT3 = makeFourCC('D', 'X', 'T', '3');
     const uint32_t FOURCC_DXT5 = makeFourCC('D', 'X', 'T', '5');
@@ -2450,6 +2439,10 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
 void Image::premultipliedAlpha()
 {
+#if CC_ENABLE_PREMULTIPLIED_ALPHA == 0
+        _hasPremultipliedAlpha = false;
+        return;
+#else
     CCASSERT(_renderFormat == Texture2D::PixelFormat::RGBA8888, "The pixel format should be RGBA8888!");
     
     unsigned int* fourBytes = (unsigned int*)_data;
@@ -2460,6 +2453,7 @@ void Image::premultipliedAlpha()
     }
     
     _hasPremultipliedAlpha = true;
+#endif
 }
 
 

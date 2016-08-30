@@ -614,12 +614,7 @@ std::string FileUtils::getStringFromFile(const std::string& filename)
 {
     std::string s;
     getContents(filename, &s);
-
-    // truncated
-    s.resize(strlen(s.data()));
-
 //    cocos2d::log("!!!!getData::%s", filename.c_str());
-    
     return s;
 }
 

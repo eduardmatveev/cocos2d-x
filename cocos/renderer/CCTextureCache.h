@@ -242,6 +242,8 @@ NS_CC_BEGIN
             int _asyncRefCount;
 
             std::unordered_map<std::string, Texture2D*> _textures;
+            
+            static std::string s_etc1AlphaFileSuffix;
     };
 
 #if CC_ENABLE_CACHE_TEXTURE_DATA
