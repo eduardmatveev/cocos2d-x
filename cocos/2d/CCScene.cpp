@@ -251,6 +251,20 @@ NS_CC_BEGIN
         Camera::_visitingCamera = nullptr;
 //    experimental::FrameBuffer::applyDefaultFBO();
     }
+    
+    void Scene::showError(const std::string& message)
+    {
+        for (auto& child : _children)
+        {
+            auto scene = dynamic_cast<Scene*>(child);
+            if (scene)
+            {
+                scene->showError(message);
+                return;
+            }
+        }
+        CCLOG("%s", message.c_str());
+    }
 
     void Scene::removeAllChildren()
     {

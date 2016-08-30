@@ -16,6 +16,13 @@ elseif(MACOSX)
       ui/UIEditBox/Mac/CCUISingleLineTextField.m
       ui/UIEditBox/Mac/CCUITextFieldFormatter.m
       )
+elseif(IOS)
+  set(COCOS_UI_SPECIFIC_SRC
+      ui/UIEditBox/UIEditBoxImpl-ios.mm
+      ui/UIVideoPlayer-ios.mm
+      ui/UIWebView.mm
+      ui/UIWebViewImpl-ios.mm
+  )
 elseif(LINUX)
   set(COCOS_UI_SPECIFIC_SRC
       ui/UIEditBox/UIEditBoxImpl-linux.cpp

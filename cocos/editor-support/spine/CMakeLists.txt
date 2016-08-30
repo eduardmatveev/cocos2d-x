@@ -1,36 +1,36 @@
 
 set(COCOS_SPINE_SRC
 
-  editor-support/spine/Animation.c
-  editor-support/spine/AnimationState.c
-  editor-support/spine/AnimationStateData.c
-  editor-support/spine/Atlas.c
-  editor-support/spine/AtlasAttachmentLoader.c
-  editor-support/spine/Attachment.c
-  editor-support/spine/AttachmentLoader.c
-  editor-support/spine/Bone.c
-  editor-support/spine/BoneData.c
-  editor-support/spine/BoundingBoxAttachment.c
-  editor-support/spine/Event.c
-  editor-support/spine/EventData.c
-  editor-support/spine/extension.c
-  editor-support/spine/IkConstraint.c
-  editor-support/spine/IkConstraintData.c
-  editor-support/spine/Json.c
-  editor-support/spine/MeshAttachment.c
-  editor-support/spine/PolygonBatch.cpp
-  editor-support/spine/RegionAttachment.c
-  editor-support/spine/Skeleton.c
-  editor-support/spine/SkeletonAnimation.cpp
-  editor-support/spine/SkeletonBounds.c
-  editor-support/spine/SkeletonData.c
-  editor-support/spine/SkeletonJson.c
-  editor-support/spine/SkeletonRenderer.cpp
-  editor-support/spine/Skin.c
-  editor-support/spine/SkinnedMeshAttachment.c
-  editor-support/spine/Slot.c
-  editor-support/spine/SlotData.c
-  editor-support/spine/spine-cocos2dx.cpp
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Animation.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/AnimationState.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/AnimationStateData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Atlas.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/AtlasAttachmentLoader.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Attachment.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/AttachmentLoader.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Bone.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/BoneData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/BoundingBoxAttachment.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Event.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/EventData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/extension.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/IkConstraint.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/IkConstraintData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Json.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/MeshAttachment.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/PolygonBatch.cpp
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/RegionAttachment.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Skeleton.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkeletonAnimation.cpp
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkeletonBounds.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkeletonData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkeletonJson.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkeletonRenderer.cpp
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Skin.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SkinnedMeshAttachment.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/Slot.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/SlotData.c
+  ${COCOS2D_ROOT}/cocos/editor-support/spine/spine-cocos2dx.cpp
 )
 
 include_directories( editor-support )

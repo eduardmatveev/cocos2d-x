@@ -481,7 +481,7 @@ protected:
     void scissorClippingVisit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags);
     
     void setStencilClippingSize(const Size& size);
-    const Rect& getClippingRect();
+    virtual const Rect& getClippingRect();
     
     virtual void doLayout()override;
     virtual LayoutManager* createLayoutManager()override;

@@ -24,41 +24,8 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.content.ClipboardManager;
-import android.content.ClipData;
-import android.content.ClipDescription;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
-import android.os.Vibrator;
-import android.preference.PreferenceManager.OnActivityResultListener;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
-import android.os.Bundle;
-import android.content.pm.PackageManager;
-import android.hardware.SensorManager;
-
-import com.android.vending.expansion.zipfile.APKExpansionSupport;
-import com.android.vending.expansion.zipfile.ZipResourceFile;
-
-import com.enhance.gameservice.IGameTuningService;
-
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -66,8 +33,38 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.lang.Exception;
-import java.lang.Runnable;
+
+import com.android.vending.expansion.zipfile.APKExpansionSupport;
+import com.android.vending.expansion.zipfile.ZipResourceFile;
+import com.enhance.gameservice.IGameTuningService;
+
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
+import android.os.Vibrator;
+import android.preference.PreferenceManager.OnActivityResultListener;
+import android.text.format.DateFormat;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 
 public class Cocos2dxHelper {
@@ -297,6 +294,12 @@ public class Cocos2dxHelper {
  		} catch(Exception e) {
  			return "";
  		}
+ 	}
+ 	
+ 	public static boolean is24HourFormat() {
+ 		boolean result = false;
+		result = DateFormat.is24HourFormat(Cocos2dxActivity.getContext()); 		
+ 		return result;
  	}
  	
     public static boolean openURL(String url) { 

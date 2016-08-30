@@ -304,8 +304,9 @@ CC_CONSTRUCTOR_ACCESS:
     void restoreFrameBufferObject();
     void restoreViewport();
 
-protected:
     static Camera* _visitingCamera;
+    
+protected:
     static experimental::Viewport _defaultViewport;
 
     Scene* _scene; //Scene camera belongs to

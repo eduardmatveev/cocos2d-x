@@ -116,6 +116,7 @@ NS_CC_BEGIN
              * @js NA
              */
             virtual void render(Renderer* renderer, const Mat4& eyeTransform, const Mat4* eyeProjection = nullptr);
+            virtual void showError(const std::string& message);
 
             /** override function */
             virtual void removeAllChildren() override;

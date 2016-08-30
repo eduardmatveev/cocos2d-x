@@ -28,6 +28,7 @@
 #include "base/ccUTF8.h"
 #include "base/CCDirector.h"
 #include "2d/CCFontAtlas.h"
+#include "2d/CCFontFNT.h"
 
 NS_CC_BEGIN
 

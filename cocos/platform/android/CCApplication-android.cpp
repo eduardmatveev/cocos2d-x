@@ -197,6 +197,11 @@ std::string Application::getVersion()
     return JniHelper::callStaticStringMethod(helperClassName, "getVersion");
 }
 
+std::string Application::getRevision()
+{
+    return JniHelper::callStaticStringMethod(helperClassName, "getRevision");
+}
+
 bool Application::openURL(const std::string &url)
 {
     return JniHelper::callStaticBooleanMethod(helperClassName, "openURL", url);

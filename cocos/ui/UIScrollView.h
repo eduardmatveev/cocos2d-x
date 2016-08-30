@@ -551,6 +551,10 @@ public:
      * @lua NA
      */
     virtual void onEnter() override;
+    
+    void startAutoScrollToDestination(const Vec2& des, float timeInSec, bool attenuated);
+    
+    std::function<Vec2(const Vec2&)> validateTargetCallback;
 
     /**
      *  When a widget is in a layout, you could call this method to get the next focused widget within a specified direction.
@@ -599,7 +603,6 @@ protected:
     
     virtual void startAttenuatingAutoScroll(const Vec2& deltaMove, const Vec2& initialVelocity);
     void startAutoScroll(const Vec2& deltaMove, float timeInSec, bool attenuated);
-    void startAutoScrollToDestination(const Vec2& des, float timeInSec, bool attenuated);
     bool isNecessaryAutoScrollBrake();
     void processAutoScrolling(float deltaTime);
 

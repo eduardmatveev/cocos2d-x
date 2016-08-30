@@ -87,6 +87,8 @@ public:
      * @return the generated event. Needed in order to remove the event from the dispatcher
      */
     EventListenerCustom* addCustomEventListener(const std::string &eventName, const std::function<void(EventCustom*)>& callback);
+    
+    const std::unordered_map<Node*, std::vector<EventListener*>*>& getListenersMap() const;
 
     /////////////////////////////////////////////
     
