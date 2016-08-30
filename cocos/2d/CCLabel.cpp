@@ -443,7 +443,7 @@ NS_CC_BEGIN
             Node::removeAllChildrenWithCleanup(true);
             CC_SAFE_RELEASE_NULL(_reusedLetter);
             _batchNodes.clear();
-            FontAtlasCache::releaseFontAtlas (_fontAtlas);
+            FontAtlasCache::releaseFontAtlas(_fontAtlas);
         }
         _eventDispatcher->removeEventListener(_purgeTextureListener);
         _eventDispatcher->removeEventListener(_resetTextureListener);
@@ -463,7 +463,7 @@ NS_CC_BEGIN
         _lettersInfo.clear();
         if (_fontAtlas)
         {
-            FontAtlasCache::releaseFontAtlas (_fontAtlas);
+            FontAtlasCache::releaseFontAtlas(_fontAtlas);
             _fontAtlas = nullptr;
         }
 
@@ -524,7 +524,7 @@ NS_CC_BEGIN
         _boldEnabled = false;
         if (_underlineNode)
         {
-            removeChild (_underlineNode);
+            removeChild(_underlineNode);
             _underlineNode = nullptr;
         }
         _strikethroughEnabled = false;
@@ -580,7 +580,7 @@ NS_CC_BEGIN
         if (_fontAtlas)
         {
             _batchNodes.clear();
-            FontAtlasCache::releaseFontAtlas (_fontAtlas);
+            FontAtlasCache::releaseFontAtlas(_fontAtlas);
             _fontAtlas = nullptr;
         }
 
@@ -1094,7 +1094,7 @@ NS_CC_BEGIN
                 if (outlineSize > 0 && _fontConfig.outlineSize != outlineSize)
                 {
                     _fontConfig.outlineSize = outlineSize;
-                    setTTFConfig (_fontConfig);
+                    setTTFConfig(_fontConfig);
                 }
             }
             else if (_effectColorF != outlineColor || _outlineSize != outlineSize)
@@ -1218,7 +1218,7 @@ NS_CC_BEGIN
                     if (_currentLabelType == LabelType::TTF)
                     {
                         _fontConfig.outlineSize = 0;
-                        setTTFConfig (_fontConfig);
+                        setTTFConfig(_fontConfig);
                     }
                     _currLabelEffect = LabelEffect::NORMAL;
                     _contentDirty = true;
@@ -1250,7 +1250,7 @@ NS_CC_BEGIN
             case cocos2d::LabelEffect::UNDERLINE:
                 if (_underlineNode)
                 {
-                    removeChild (_underlineNode);
+                    removeChild(_underlineNode);
                     _underlineNode = nullptr;
                 }
                 break;
@@ -1394,7 +1394,7 @@ NS_CC_BEGIN
             {
                 _batchNodes.clear();
 
-                FontAtlasCache::releaseFontAtlas (_fontAtlas);
+                FontAtlasCache::releaseFontAtlas(_fontAtlas);
                 _fontAtlas = nullptr;
             }
 
@@ -1413,7 +1413,7 @@ NS_CC_BEGIN
                 _utf16Text = utf16String;
             }
 
-            computeHorizontalKernings (_utf16Text);
+            computeHorizontalKernings(_utf16Text);
             updateFinished = alignText();
         }
         else

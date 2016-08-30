@@ -69,7 +69,7 @@ NS_CC_BEGIN
 
         //create default camera
         _defaultCamera = Camera::create();
-        addChild (_defaultCamera);
+        addChild(_defaultCamera);
 
         _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_PROJECTION_CHANGED,
                 std::bind(&Scene::onProjectionChanged, this, std::placeholders::_1));
@@ -261,7 +261,7 @@ NS_CC_BEGIN
 
         if (_defaultCamera)
         {
-            addChild (_defaultCamera);
+            addChild(_defaultCamera);
             _defaultCamera->release();
         }
     }
@@ -336,7 +336,7 @@ NS_CC_BEGIN
     {
 #if CC_USE_PHYSICS
         if (_physicsWorld && _physicsWorld->isAutoStep())
-            _physicsWorld->update(deltaTime);
+        _physicsWorld->update(deltaTime);
 #endif
 
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION

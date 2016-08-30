@@ -216,7 +216,7 @@ NS_CC_BEGIN
     {
         AsyncStruct *asyncStruct = nullptr;
         std::mutex signalMutex;
-        std::unique_lock < std::mutex > signal(signalMutex);
+        std::unique_lock<std::mutex> signal(signalMutex);
         while (!_needQuit)
         {
             // pop an AsyncStruct from request queue
