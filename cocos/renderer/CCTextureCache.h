@@ -42,7 +42,6 @@
 #include "platform/CCImage.h"
 
 #if CC_ENABLE_CACHE_TEXTURE_DATA
-#include "platform/CCImage.h"
 #include <list>
 #endif
 
@@ -218,7 +217,7 @@ NS_CC_BEGIN
              *
              * @since v3.10
              */
-            void renameTextureWithKey(const std::string srcName, const std::string dstName);
+            void renameTextureWithKey(const std::string srcName, const std::string& dstName);
 
         private:
             void addImageAsyncCallBack(float dt);

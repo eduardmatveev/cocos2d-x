@@ -25,16 +25,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include <deque>
-
 #include "2d/CCScene.h"
 #include "base/CCDirector.h"
 #include "2d/CCCamera.h"
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventListenerCustom.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCFrameBuffer.h"
-#include "deprecated/CCString.h"
 
 #if CC_USE_PHYSICS
 #include "physics/CCPhysicsWorld.h"
@@ -187,69 +185,58 @@ NS_CC_BEGIN
         return _cameras;
     }
 
-    void Scene::render(Renderer* renderer)
+    void Scene::render(Renderer* renderer, const Mat4& eyeTransform, const Mat4* eyeProjection)
     {
         auto director = Director::getInstance();
-        Camera* defaultCamera = getDefaultCamera();
+        Camera* defaultCamera = nullptr;
         const auto& transform = getNodeToParentTransform();
-        
-            for (const auto& camera : getCameras())
-            {
-                if (camera->isVisible())
-                {
-                  Camera::_visitingCamera = camera;
-            
-                  director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-                  director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
-                  camera->apply();
-                                
-                  //clear background with max depth
-                  if(camera == defaultCamera)
-                  {
-                      camera->clearBackground();
-                  }
-            
-                  auto parentsQueue = std::deque<Node*>();
-                  for(auto parent = getParent(); parent; parent = parent->getParent())
-                  {
-                      parentsQueue.push_back(parent);
-                  }
-            
-                  auto flags = uint32_t(0);
-                  for (auto itParent = parentsQueue.rbegin(); itParent != parentsQueue.rend(); ++itParent)
-                  {
-                      //flags = (*it)->processParentFlags((*it)->getModelViewTransform(), flags);
-                      (*itParent)->pushModelViewTransform();
-                  }
-            
-                  //visit the node
-                  if(getParent())
-                  {
-                      visit(renderer, getParent()->getModelViewTransform(), flags);
-                  }
-                  else
-                  {
-                      visit(renderer, transform, flags);
-                  }
-                  
-                  for (auto itParent = parentsQueue.begin(); itParent != parentsQueue.end(); ++itParent)
-                  {
-                      (*itParent)->popModelViewTransform();
-                  }
 
-#if CC_USE_NAVMESH
-                  if (_navMesh && _navMeshDebugCamera == camera)
-                    {
-                      _navMesh->debugDraw(renderer);
-                    }
-#endif
-        
-                  director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-                }
+        for (const auto& camera : getCameras())
+        {
+            if (!camera->isVisible())
+                continue;
+
+            Camera::_visitingCamera = camera;
+            if (Camera::_visitingCamera->getCameraFlag() == CameraFlag::DEFAULT)
+            {
+                defaultCamera = Camera::_visitingCamera;
             }
-        
-        renderer->render();
-        
+
+            // There are two ways to modify the "default camera" with the eye Transform:
+            // a) modify the "nodeToParentTransform" matrix
+            // b) modify the "additional transform" matrix
+            // both alternatives are correct, if the user manually modifies the camera with a camera->setPosition()
+            // then the "nodeToParent transform" will be lost.
+            // And it is important that the change is "permament", because the matrix might be used for calculate
+            // culling and other stuff.
+            if (eyeProjection)
+                camera->setAdditionalProjection(*eyeProjection * camera->getProjectionMatrix().getInversed());
+            camera->setAdditionalTransform(eyeTransform.getInversed());
+
+            director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+            director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
+            camera->apply();
+            //clear background with max depth
+            camera->clearBackground();
+            //visit the scene
+            visit(renderer, transform, 0);
+#if CC_USE_NAVMESH
+            if (_navMesh && _navMeshDebugCamera == camera)
+            {
+                _navMesh->debugDraw(renderer);
+            }
+#endif
+
+            renderer->render();
+            camera->restore();
+
+            director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+
+            // we shouldn't restore the transform matrix since it could be used
+            // from "update" or other parts of the game to calculate culling or something else.
+//        camera->setNodeToParentTransform(eyeCopy);
+        }
+
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION
         if (_physics3DWorld && _physics3DWorld->isDebugDrawEnabled())
         {
@@ -262,21 +249,7 @@ NS_CC_BEGIN
 #endif
 
         Camera::_visitingCamera = nullptr;
-        experimental::FrameBuffer::applyDefaultFBO();
-    }
-
-    void Scene::showError(const std::string& message)
-    {
-        for (auto& child : _children)
-        {
-            auto scene = dynamic_cast<Scene*>(child);
-            if (scene)
-            {
-                scene->showError(message);
-                return;
-            }
-        }
-        CCLOG("%s", message.c_str());
+//    experimental::FrameBuffer::applyDefaultFBO();
     }
 
     void Scene::removeAllChildren()
@@ -339,7 +312,7 @@ NS_CC_BEGIN
         do
         {
             Director * director;
-            CC_BREAK_IF( ! (director = Director::getInstance()) );
+            CC_BREAK_IF(!(director = Director::getInstance()));
 
             this->setContentSize(director->getWinSize());
 
@@ -351,7 +324,8 @@ NS_CC_BEGIN
 
             // success
             ret = true;
-        }while (0);
+        }
+        while (0);
         return ret;
     }
 

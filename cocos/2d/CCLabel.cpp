@@ -567,6 +567,11 @@ NS_CC_BEGIN
 
     void Label::setFontAtlas(FontAtlas* atlas, bool distanceFieldEnabled /* = false */, bool useA8Shader /* = false */)
     {
+        if (atlas)
+        {
+            _systemFontDirty = false;
+        }
+
         if (atlas == _fontAtlas)
         {
             FontAtlasCache::releaseFontAtlas(atlas);
@@ -798,9 +803,9 @@ NS_CC_BEGIN
         {
             _fontAtlas->prepareLetterDefinitions(_utf16Text);
             auto& textures = _fontAtlas->getTextures();
-            if (textures.size() > _batchNodes.size())
+            if (textures.size() > static_cast<size_t>(_batchNodes.size()))
             {
-                for (auto index = _batchNodes.size(); index < textures.size(); ++index)
+                for (auto index = static_cast<size_t>(_batchNodes.size()); index < textures.size(); ++index)
                 {
                     auto batchNode = SpriteBatchNode::createWithTexture(textures.at(index));
                     if (batchNode)
@@ -834,20 +839,22 @@ NS_CC_BEGIN
 
             if (_overflow == Overflow::SHRINK)
             {
-//            float fontSize = this->getRenderingFontSize();
-//
-//            if(fontSize > 0 &&  isVerticalClamp()){
-//                this->shrinkLabelToContentSize(CC_CALLBACK_0(Label::isVerticalClamp, this));
-//            }
+                float fontSize = this->getRenderingFontSize();
+
+                if (fontSize > 0 && isVerticalClamp())
+                {
+                    this->shrinkLabelToContentSize(CC_CALLBACK_0(Label::isVerticalClamp, this));
+                }
             }
 
             if (!updateQuads())
             {
                 ret = false;
-//            if(_overflow == Overflow::SHRINK){
-//                this->shrinkLabelToContentSize(CC_CALLBACK_0(Label::isHorizontalClamp, this));
-//            }
-//            break;
+                if (_overflow == Overflow::SHRINK)
+                {
+                    this->shrinkLabelToContentSize(CC_CALLBACK_0(Label::isHorizontalClamp, this));
+                }
+                break;
             }
 
             updateLabelLetters();
@@ -1168,7 +1175,7 @@ NS_CC_BEGIN
         if (!_boldEnabled)
         {
             // bold is implemented with outline
-            enableShadow(Color4B::WHITE, Size(0.9, 0), 0);
+            enableShadow(Color4B::WHITE, Size(0.9f, 0), 0);
             // add one to kerning
             setAdditionalKerning(_additionalKerning + 1);
             _boldEnabled = true;
@@ -1361,7 +1368,7 @@ NS_CC_BEGIN
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID) && (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
         if (textDefinition._stroke._strokeEnabled)
         {
-            CCLOGERROR("Currently only supported on iOS and Android!");
+            CCLOGERROR("Stroke Currently only supported on iOS and Android!");
         }
         _outlineSize = 0.f;
 #else
@@ -1717,6 +1724,7 @@ NS_CC_BEGIN
         if (systemFont != _systemFont)
         {
             _systemFont = systemFont;
+            _currentLabelType = LabelType::STRING_TEXTURE;
             _systemFontDirty = true;
         }
     }
@@ -1727,6 +1735,7 @@ NS_CC_BEGIN
         {
             _systemFontSize = fontSize;
             _originalFontSize = fontSize;
+            _currentLabelType = LabelType::STRING_TEXTURE;
             _systemFontDirty = true;
         }
     }
@@ -1844,6 +1853,8 @@ NS_CC_BEGIN
 
     float Label::getAdditionalKerning() const
     {
+        CCASSERT(_currentLabelType != LabelType::STRING_TEXTURE, "Not supported system font!");
+
         return _additionalKerning;
     }
 
@@ -2069,6 +2080,8 @@ NS_CC_BEGIN
         systemFontDef._fontFillColor.b = _textColor.b;
         systemFontDef._fontAlpha = _textColor.a;
         systemFontDef._shadow._shadowEnabled = false;
+        systemFontDef._enableWrap = _enableWrap;
+        systemFontDef._overflow = (int) _overflow;
 
         if (_currLabelEffect == LabelEffect::OUTLINE && _outlineSize > 0.f)
         {
@@ -2087,7 +2100,7 @@ NS_CC_BEGIN
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID) && (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
         if (systemFontDef._stroke._strokeEnabled)
         {
-            CCLOGERROR("Currently only supported on iOS and Android!");
+            CCLOGERROR("Stroke Currently only supported on iOS and Android!");
         }
         systemFontDef._stroke._strokeEnabled = false;
 #endif
@@ -2132,7 +2145,7 @@ NS_CC_BEGIN
 
     void Label::enableWrap(bool enable)
     {
-        if (enable == _enableWrap || _overflow == Overflow::RESIZE_HEIGHT || _currentLabelType == LabelType::STRING_TEXTURE)
+        if (enable == _enableWrap || _overflow == Overflow::RESIZE_HEIGHT)
         {
             return;
         }
@@ -2159,14 +2172,6 @@ NS_CC_BEGIN
         if (_currentLabelType == LabelType::CHARMAP)
         {
             if (overflow == Overflow::SHRINK)
-            {
-                return;
-            }
-        }
-
-        if (_currentLabelType == LabelType::STRING_TEXTURE)
-        {
-            if (overflow == Overflow::CLAMP || overflow == Overflow::SHRINK)
             {
                 return;
             }

@@ -55,6 +55,7 @@ public class Cocos2dxWebView extends WebView {
 
         this.getSettings().setSupportZoom(false);
 
+        this.getSettings().setDomStorageEnabled(true);
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setDomStorageEnabled(true);
         boolean isDebuggable = 0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE);

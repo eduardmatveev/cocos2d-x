@@ -40,6 +40,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +49,7 @@ import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import net.hockeyapp.android.CrashManager;
@@ -293,8 +295,10 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 			mEditBoxHelper = new Cocos2dxEditBoxHelper(mFrameLayout);
 		}
 
-		Window window = this.getWindow();
-		window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        Window window = this.getWindow();
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
 
 	// native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES
@@ -321,30 +325,25 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 			}
 		});
 		Tracking.startUsage(this);
+        this.hideVirtualButton();
 		resumeIfHasFocus();
 	}
 
 	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
-		super.onWindowFocusChanged(hasFocus);
-
-		if (currentApiVersion >= Build.VERSION_CODES.KITKAT && hasFocus) {
-			getWindow().getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-							| View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-		}
-
-		this.hasFocus = hasFocus;
-		resumeIfHasFocus();
-	}
+    public void onWindowFocusChanged(boolean hasFocus) {
+    	Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
+        super.onWindowFocusChanged(hasFocus);
+        
+        this.hasFocus = hasFocus;
+        resumeIfHasFocus();
+    }
 
 	private void resumeIfHasFocus() {
-		if (hasFocus) {
-			Cocos2dxHelper.onResume();
-			mGLSurfaceView.onResume();
-		}
+        if(hasFocus) {
+            this.hideVirtualButton();
+        	Cocos2dxHelper.onResume();
+        	mGLSurfaceView.onResume();
+        }
 	}
 
 	@Override
@@ -389,6 +388,8 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 		for (OnActivityResultListener listener : Cocos2dxHelper.getOnActivityResultListeners()) {
 			listener.onActivityResult(requestCode, resultCode, data);
 		}
+
+        this.hideVirtualButton();
 
 		if (!SDKBox.onActivityResult(requestCode, resultCode, data)) {
 			super.onActivityResult(requestCode, resultCode, data);
@@ -498,6 +499,20 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
 		return glSurfaceView;
 	}
+
+    protected void hideVirtualButton() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
 
 	private final static boolean isAndroidEmulator() {
 		String model = Build.MODEL;

@@ -51,8 +51,9 @@ THE SOFTWARE.
 #include "base/base64.h"
 #include "base/ZipUtils.h"
 #include "base/CCDirector.h"
+#include "base/CCProfiling.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
-#include "deprecated/CCString.h"
 #include "platform/CCFileUtils.h"
 
 using namespace std;
@@ -219,6 +220,7 @@ ParticleSystem::ParticleSystem()
 , _yCoordFlipped(1)
 , _positionType(PositionType::FREE)
 , _updateTime(0.0f)
+, _paused(false)
 {
     modeA.gravity.setZero();
     modeA.speed = 0;
@@ -588,6 +590,8 @@ ParticleSystem::~ParticleSystem()
 
 void ParticleSystem::addParticles(int count)
 {
+    if (_paused)
+        return;
     uint32_t RANDSEED = rand();
 
     int start = _particleCount;
@@ -941,6 +945,12 @@ void ParticleSystem::update(float dt)
         }
         else
         {
+            //Why use so many for-loop separately instead of putting them together?
+            //When the processor needs to read from or write to a location in memory,
+            //it first checks whether a copy of that data is in the cache.
+            //And every property's memory of the particle system is continuous,
+            //for the purpose of improving cache hit rate, we should process only one property in one for-loop AFAP.
+            //It was proved to be effective especially for low-end machine. 
             for (int i = 0; i < _particleCount; ++i)
             {
                 _particleData.modeB.angle[i] += _particleData.modeB.degreesPerSecond[i] * dt;
@@ -1350,4 +1360,22 @@ void ParticleSystem::stop()
 {
     stopSystem();
 }
+
+bool ParticleSystem::isPaused() const
+{
+    return _paused;
+}
+
+void ParticleSystem::pauseEmissions()
+{
+    _paused = true;
+}
+
+void ParticleSystem::resumeEmissions()
+{
+    _paused = false;
+}
+
+
+
 NS_CC_END
