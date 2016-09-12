@@ -7,6 +7,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -81,18 +83,18 @@ public class GooglePlayAdapter {
 
     public static void handleSignInResult(GoogleSignInResult result)
     {
+    	String id = "";
+    	String token = "";
     	if(result != null)
     	{
     		GoogleSignInAccount account = result.getSignInAccount();
     		if(account != null)
     		{
-		    	String id = account.getId();
-		    	String token = account.getIdToken();
+		    	id = account.getId();
+		    	token = account.getIdToken();
 		    	
 		    	Log.d("Imperial_GooglePlayAdapter", "id '" + id + "'");
 		    	Log.d("Imperial_GooglePlayAdapter", "token '" + token + "'");
-		    	
-		    	handleSignInResultNative(id, token);
     		}
     		else
     		{
@@ -100,7 +102,17 @@ public class GooglePlayAdapter {
     			Log.d("Imperial_GooglePlayAdapter", "account is a null");
     		}
     	}
+    	
+    	handleSignInResultNative(id, token);
     }
     
+    public static boolean checkExistedGoogleAccounts()
+    {
+		AccountManager am = AccountManager.get(m_context);
+		Account[] accounts = am.getAccountsByType("com.google");
+		Log.d("GooglePlayAdapter: Google accounts", accounts.length + "");
+		return accounts.length > 0;
+    }
+
     public static native void handleSignInResultNative(String id, String token);  
 }

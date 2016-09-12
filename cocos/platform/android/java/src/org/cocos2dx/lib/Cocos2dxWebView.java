@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -39,14 +40,29 @@ public class Cocos2dxWebView extends WebView {
 
     private int mViewTag;
     private String mJSScheme;
+    private Cocos2dxGLSurfaceView mGLSurfaceView = null;
 
     public Cocos2dxWebView(Context context) {
         this(context, -1);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	mGLSurfaceView.onKeyDown(keyCode, event);
+    	return true;
+    }
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    	mGLSurfaceView.onKeyUp(keyCode, event);
+    	return true;
+    }
+    
     @SuppressLint("SetJavaScriptEnabled")
     public Cocos2dxWebView(Context context, int viewTag) {
         super(context);
+        
+        Cocos2dxActivity activity = (Cocos2dxActivity)context;
+        mGLSurfaceView = activity.getGLSurfaceView();
+        
         this.mViewTag = viewTag;
         this.mJSScheme = "";
 

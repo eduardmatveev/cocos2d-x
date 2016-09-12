@@ -413,6 +413,7 @@ public:
     void setAlphaTexture(Texture2D* alphaTexture);
 
     GLuint getAlphaTextureName() const;
+    Texture2D* getAlphaTexture() const;
 public:
     /** Get pixel info map, the key-value pairs is PixelFormat and PixelFormatInfo.*/
     static const PixelFormatInfoMap& getPixelFormatInfoMap();

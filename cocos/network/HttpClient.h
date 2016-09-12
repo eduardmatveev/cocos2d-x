@@ -149,6 +149,8 @@ public:
     std::mutex& getCookieFileMutex() {return _cookieFileMutex;}
 
     std::mutex& getSSLCaFileMutex() {return _sslCaFileMutex;}
+    
+    void processResponse(HttpResponse* response, char* responseMessage);
 private:
     HttpClient();
     virtual ~HttpClient();
@@ -164,7 +166,6 @@ private:
     /** Poll function called from main thread to dispatch callbacks when http requests finished **/
     void dispatchResponseCallbacks();
 
-    void processResponse(HttpResponse* response, char* responseMessage);
     void increaseThreadCount();
     void decreaseThreadCountAndMayDeleteThis();
 

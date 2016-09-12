@@ -189,18 +189,22 @@ namespace {
 // FIXME: Deprecated
 void CCLog(const char * format, ...)
 {
+#if COCOS2D_DEBUG > 0
     va_list args;
     va_start(args, format);
     _log(format, args);
     va_end(args);
+#endif
 }
 
 void log(const char * format, ...)
 {
+#if COCOS2D_DEBUG > 0
     va_list args;
     va_start(args, format);
     _log(format, args);
     va_end(args);
+#endif
 }
 
 //

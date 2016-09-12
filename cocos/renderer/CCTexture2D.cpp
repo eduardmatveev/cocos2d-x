@@ -502,6 +502,11 @@ GLuint Texture2D::getAlphaTextureName() const
     return _alphaTexture == nullptr ? 0 : _alphaTexture->getName();
 }
 
+Texture2D* Texture2D::getAlphaTexture() const
+{
+    return _alphaTexture;
+}
+
 Size Texture2D::getContentSize() const
 {
     Size ret;

@@ -484,6 +484,10 @@ void HttpClient::dispatchResponseCallbacks()
 void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 {
     auto request = response->getHttpRequest();
+	if(request->requestThreadCallback)
+	{
+	    request->requestThreadCallback(request);
+	}
     long responseCode = -1;
     int retValue = 0;
     NSString* requestType = nil;
@@ -531,6 +535,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
     {
         response->setSucceed(false);
         response->setErrorBuffer(responseMessage);
+    }
+    if(request->responseThreadCallback)
+    {
+        request->responseThreadCallback(response);
     }
 }
 

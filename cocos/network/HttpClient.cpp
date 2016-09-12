@@ -511,6 +511,10 @@ void HttpClient::dispatchResponseCallbacks()
 void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 {
 	auto request = response->getHttpRequest();
+	if(request->requestThreadCallback)
+	{
+	    request->requestThreadCallback(request);
+	}
 //    cocos2d::log("%s", ("Sending request:" + std::string(request->getUrl())).c_str());
 	long responseCode = -1;
 	int retValue = 0;
@@ -574,6 +578,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 	{
 		response->setSucceed(true);
 	}
+    if(request->responseThreadCallback)
+    {
+        request->responseThreadCallback(response);
+    }
 }
 
 void HttpClient::increaseThreadCount()

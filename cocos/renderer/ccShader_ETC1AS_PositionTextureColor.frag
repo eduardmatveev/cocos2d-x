@@ -33,8 +33,6 @@ varying vec2 v_texCoord;
 
 void main() {
     vec4 texColor = vec4(texture2D(CC_Texture0, v_texCoord).rgb, texture2D(CC_Texture1, v_texCoord).r);
-
-    texColor.rgb *= texColor.a; // Premultiply with Alpha channel
     
     gl_FragColor = v_fragmentColor * texColor;
 }

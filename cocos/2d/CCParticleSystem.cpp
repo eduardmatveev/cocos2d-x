@@ -835,7 +835,7 @@ bool ParticleSystem::isFull()
 // ParticleSystem - MainLoop
 void ParticleSystem::update(float dt)
 {
-    static const float FRAME_TIME = 1.0f / 7.5f;
+    static const float FRAME_TIME = 1.0f / 30.0f;
     _updateTime += dt;
     if(_updateTime <= FRAME_TIME)
     {

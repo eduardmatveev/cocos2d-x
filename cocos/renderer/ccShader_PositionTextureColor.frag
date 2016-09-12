@@ -26,10 +26,12 @@
 const char* ccPositionTextureColor_frag = STRINGIFY(
 \n#ifdef GL_ES\n
 precision lowp float;
-\n#endif\n
-
+varying lowp vec4 v_fragmentColor;
+varying lowp vec2 v_texCoord;
+\n#else\n
 varying vec4 v_fragmentColor;
 varying vec2 v_texCoord;
+\n#endif\n
 
 void main()
 {

@@ -626,6 +626,10 @@ private:
 void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 {
     auto request = response->getHttpRequest();
+    if(request->requestThreadCallback)
+    {
+        request->requestThreadCallback(request);
+    }
     HttpRequest::Type requestType = request->getRequestType();
 
     if (HttpRequest::Type::GET != requestType &&
@@ -729,6 +733,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
     else
     {
         response->setSucceed(true);
+    }
+    if(request->responseThreadCallback)
+    {
+        request->responseThreadCallback(response);
     }
 }
 

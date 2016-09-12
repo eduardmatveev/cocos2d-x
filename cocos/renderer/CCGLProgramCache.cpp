@@ -449,6 +449,17 @@ void GLProgramCache::reloadDefaultGLPrograms()
     p = getGLProgram(GLProgram::SHADER_CAMERA_CLEAR);
     p->reset();
     loadDefaultGLProgram(p, kShaderType_CameraClear);
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    //ETC1AS support
+    p = getGLProgram(GLProgram::SHADER_NAME_ETC1AS_POSITION_TEXTURE_COLOR_NO_MVP);
+    p->reset();
+    loadDefaultGLProgram(p, kShaderType_ETC1ASPositionTextureColor_noMVP);
+
+    p = getGLProgram(GLProgram::SHADER_NAME_ETC1AS_POSITION_TEXTURE_COLOR);
+    p->reset();
+    loadDefaultGLProgram(p, kShaderType_ETC1ASPositionTextureColor);
+#endif
 }
 
 void GLProgramCache::reloadDefaultGLProgramsRelativeToLights()

@@ -469,7 +469,7 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
         return nullptr;
     }
 
-    SLuint32 locatorType = info.assetFd > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
+    SLuint32 locatorType = (info.assetFd != nullptr && info.assetFd->getFd() > 0) ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
     auto urlPlayer = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool ret = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret)

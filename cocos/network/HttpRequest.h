@@ -89,6 +89,8 @@ public:
         , _pSelector(nullptr)
         , _pCallback(nullptr)
         , _pUserData(nullptr)
+        , requestThreadCallback(nullptr)
+        , responseThreadCallback(nullptr)
     {
     }
 
@@ -338,7 +340,9 @@ public:
     {
         return _headers;
     }
-
+    std::function<void(HttpRequest*)> requestThreadCallback;
+    std::function<void(HttpResponse*)> responseThreadCallback;
+    
 private:
     inline void doSetResponseCallback(Ref* pTarget, SEL_HttpResponse pSelector)
     {

@@ -135,7 +135,7 @@ public:
  Does process all response in addImageAsyncCallback consume more time?
  - Convert image to texture faster than load image from disk, so this isn't a problem.
  */
-void TextureCache::addImageAsync(const std::string &path, const std::function<void(Texture2D*)>& callback)
+TextureCache::AsyncStruct* TextureCache::addImageAsync(const std::string &path, const std::function<void(Texture2D*)>& callback)
 {
     Texture2D *texture = nullptr;
 
@@ -148,13 +148,13 @@ void TextureCache::addImageAsync(const std::string &path, const std::function<vo
     if (texture != nullptr)
     {
         if (callback) callback(texture);
-        return;
+        return nullptr;
     }
 
     // check if file exists
     if (fullpath.empty() || !FileUtils::getInstance()->isFileExist(fullpath)) {
         if (callback) callback(nullptr);
-        return;
+        return nullptr;
     }
 
     // lazy init
@@ -170,18 +170,46 @@ void TextureCache::addImageAsync(const std::string &path, const std::function<vo
         Director::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(TextureCache::addImageAsyncCallBack), this, 0, false);
     }
 
-    ++_asyncRefCount;
-
-    // generate async struct
     AsyncStruct *data = new (std::nothrow) AsyncStruct(fullpath, callback);
-
+    bool newData = true;
+    for (auto& _data : _asyncStructQueue)
+    {
+        if (_data->filename == fullpath)
+        {
+            newData = false;
+            break;
+        }
+    }
     // add async struct into queue
     _asyncStructQueue.push_back(data);
-    _requestMutex.lock();
-    _requestQueue.push_back(data);
-    _requestMutex.unlock();
 
-    _sleepCondition.notify_one();
+    if (newData)
+    {
+        ++_asyncRefCount;
+        _requestMutex.lock();
+        _requestQueue.push_back(data);
+        _requestMutex.unlock();
+
+        _sleepCondition.notify_one();
+    }
+
+    return data;
+}
+
+void TextureCache::unbindImageAsync(TextureCache::AsyncStruct* data)
+{
+    if (_asyncStructQueue.empty())
+    {
+        return;
+    }
+    for (auto it = _asyncStructQueue.begin(); it != _asyncStructQueue.end(); ++it)
+    {
+        if ((*it) == data)
+        {
+            (*it)->callback = nullptr;
+            break;
+        }
+    }
 }
 
 void TextureCache::unbindImageAsync(const std::string& filename)
@@ -259,8 +287,6 @@ void TextureCache::addImageAsyncCallBack(float dt)
 {
     Texture2D *texture = nullptr;
     AsyncStruct *asyncStruct = nullptr;
-    while (true)
-    {
         // pop an AsyncStruct from response queue
         _responseMutex.lock();
         if (_responseQueue.empty())
@@ -279,7 +305,7 @@ void TextureCache::addImageAsyncCallBack(float dt)
         _responseMutex.unlock();
 
         if (nullptr == asyncStruct) {
-            break;
+            return;
         }
 
         // check the image has been convert to texture or not
@@ -323,17 +349,32 @@ void TextureCache::addImageAsyncCallBack(float dt)
                 CCLOG("cocos2d: failed to call TextureCache::addImageAsync(%s)", asyncStruct->filename.c_str());
             }
         }
-
-        // call callback function
+        
+        auto filename = asyncStruct->filename;
         if (asyncStruct->callback)
         {
             (asyncStruct->callback)(texture);
         }
-
-        // release the asyncStruct
         delete asyncStruct;
         --_asyncRefCount;
-    }
+
+        for (auto it = _asyncStructQueue.begin(); it != _asyncStructQueue.end();)
+        {
+            asyncStruct = *it;
+            if (asyncStruct->filename == filename)
+            {
+                if (asyncStruct->callback)
+                {
+                    (asyncStruct->callback)(texture);
+                }
+                it = _asyncStructQueue.erase(it);
+                delete asyncStruct;
+            }
+            else
+            {
+                ++it;
+            }
+        }
 
     if (0 == _asyncRefCount)
     {

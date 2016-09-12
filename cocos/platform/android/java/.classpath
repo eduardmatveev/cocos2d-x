@@ -2,8 +2,26 @@
 <classpath>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="libcocos2dx/libs"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="libs/AF-Android-SDK.jar"/>
+	<classpathentry kind="lib" path="libs/android-async-http-1.4.9.jar"/>
+	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="libs/bolts-android-1.1.2.jar"/>
+	<classpathentry kind="lib" path="libs/com.android.vending.expansion.zipfile.jar"/>
+	<classpathentry kind="lib" path="libs/facebook-android-4.12.1.jar"/>
+	<classpathentry kind="lib" path="libs/google-play-services.jar"/>
+	<classpathentry kind="lib" path="libs/HockeySDK-3.6.2.jar"/>
+	<classpathentry kind="lib" path="libs/mobmetricalib-2.42.jar"/>
+	<classpathentry kind="lib" path="libs/PluginFacebook.jar"/>
+	<classpathentry kind="lib" path="libs/PluginGooglePlay.jar"/>
+	<classpathentry kind="lib" path="libs/PluginIAP.jar"/>
+	<classpathentry kind="lib" path="libs/PluginSdkboxPlay.jar"/>
+	<classpathentry kind="lib" path="libs/sdkbox.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

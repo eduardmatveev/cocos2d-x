@@ -1977,7 +1977,6 @@ protected:
     bool        _cascadeOpacityEnabled;
     bool _scheduleUpdate;
     struct timeval _scheduleUpdateTime;
-    static int s_globalOrderOfArrival;
 
     // camera mask, it is visible only when _cameraMask & current camera' camera flag is true
     unsigned short _cameraMask;
