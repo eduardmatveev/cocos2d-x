@@ -773,6 +773,10 @@ public class Cocos2dxHelper {
         return Cocos2dxHelper.sCocos2dxAccelerometer.compassFieldValues;
     }
     
+    public static int getSDKVersion() {
+        return Build.VERSION.SDK_INT;
+    }
+    
     // RJ modifications
 
     public static String getClipboard() {
